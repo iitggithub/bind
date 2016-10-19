@@ -42,7 +42,7 @@ EOF
   fi
 fi
 
-# include custom bind configuration
+# include custom bind configuration provided one exists
 if [ -f ${BIND_CHROOT_DIR}/custom/named.conf ]
   then
   sed -i 's/^#include "\/custom\/named.conf/include "\/custom\/named.conf/g' ${BIND_CHROOT_DIR}/etc/named.conf
