@@ -3,7 +3,7 @@
 # Exit immediately upon failure
 set -e
 
-if [ "${@}" != "/start.sh" ]
+if [ "${@}" != "/run.sh" ]
   then
   ARGS="${@}"
 fi
