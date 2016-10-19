@@ -82,7 +82,9 @@ fi
 # Start the DNS server
 if [ -n "${ARGS}" ]
   then
+  # with command line arguments
   exec /usr/sbin/named -u named -g -t ${BIND_CHROOT_DIR} ${ARGS}
   else
+  # without command line arguments
   exec /usr/sbin/named -u named -g -t ${BIND_CHROOT_DIR}
 fi
