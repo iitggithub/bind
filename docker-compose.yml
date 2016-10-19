@@ -1,0 +1,13 @@
+bind:
+  image: iitgdocker/bind:latest
+  ports:
+    - "53:53"
+    - "53:53/udp"
+    - "953:953"
+  volumes:
+    - /data/bind/custom:/var/named/chroot/custom
+    - /data/bind/master:/var/named/chroot/master
+    - /data/bind/aide:/var/lib/aide
+  #environment:
+    #- BIND_RNDC_SECRET=<your RNDC secret if you have one>
+    #- BIND_RNDC_ALGORITHM=hmac-md5
