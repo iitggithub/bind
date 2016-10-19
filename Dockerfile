@@ -29,7 +29,7 @@ RUN chown root:named \
                             ${BIND_CHROOT_DIR}/master \
                             ${BIND_CHROOT_DIR}/slave
 
-COPY run.sh /run.sh
-RUN chmod +x /run.sh
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
 ENTRYPOINT ["/run.sh"]
 CMD ["/run.sh"]

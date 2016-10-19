@@ -64,7 +64,7 @@ Your DNS master zone files should be mounted here. That's probably all that need
 
 /var/lib/aide contains the AIDE integrity database file aide.db.tar.gz. If this file does not exist when the container starts, it will be created automatically. It is strongly recommended that this file be backed up to a secure location. This database is your baseline from which all filesystem changes are compared against so keep a copy somewhere safe.
 
-If run.sh finds a file called aide.conf in this directory, AIDE will use this instead of its default configuration file.
+If the start script finds a file called aide.conf in this directory, AIDE will use this instead of its default configuration file.
 
 If changes are made to the container after its been started, you'll probably need to update the AIDE integrity database. You can do this from outside of the container by running the following command against your container:
 
