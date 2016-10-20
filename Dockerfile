@@ -30,8 +30,8 @@ RUN chown root:named \
                             ${BIND_CHROOT_DIR}/slave
 
 
-ADD run.sh /run.sh
-RUN ls -l /
+COPY run.sh /run.sh
 RUN chmod +x /run.sh
+
 ENTRYPOINT ["/run.sh"]
 CMD ["/run.sh"]
