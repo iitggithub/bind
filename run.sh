@@ -8,41 +8,56 @@ if [ "${@}" != "/run.sh" ]
   ARGS="${@}"
 fi
 
-# If we find a rndc.key file in our custom directory use it!
-if [ -f ${BIND_CHROOT_DIR}/custom/rndc.key ]
+# If we find a rndc.conf file in our custom directory use it!
+if [ ! -f ${BIND_CHROOT_DIR}/custom/rndc.conf ]
   then
-  echo "Found ${BIND_CHROOT_DIR}/custom/rndc.key. Linking to ${BIND_CHROOT_DIR}/etc/rndc.key..."
-  ln -sf ${BIND_CHROOT_DIR}/custom/rndc.key ${BIND_CHROOT_DIR}/etc/rndc.key
-elif [ -n "${BIND_RNDC_ALGORITHM}" ] || \
+  if [ -n "${BIND_RNDC_ALGORITHM}" ] || \
      [ -n "${BIND_RNDC_SECRET}" ]
-  then
-  echo "BIND_RNDC_ALGORITHM and BIND_RNDC_SECRET are set. Configuring ${BIND_CHROOT_DIR}/etc/rndc.key..."
-  # Generate a new RNDC configuration file based on supplied variables.
-  cat | tee ${BIND_CHROOT_DIR}/etc/rndc.key <<EOF
-key "rndc-key" {
+    then
+    echo "BIND_RNDC_ALGORITHM and BIND_RNDC_SECRET are set. Configuring ${BIND_CHROOT_DIR}/etc/rndc.conf..."
+    if [ -z "${BIND_RNDC_INET}" ]
+      then
+      BIND_RNDC_INET="127.0.0.1"
+    fi
+    if [ -z "${BIND_RNDC_ALLOW}" ]
+      then
+      BIND_RNDC_INET="localhost;"
+    fi
+    # Generate a new RNDC configuration file based on supplied variables.
+    cat | tee ${BIND_CHROOT_DIR}/custom/rndc.conf <<EOF
+key "rndc.conf" {
         algorithm ${BIND_RNDC_ALGORITHM};
         secret "${BIND_RNDC_SECRET}";
 };
+
+controls {
+  inet ${BIND_RNDC_INET} allow { ${BIND_RNDC_ALLOW} } keys { "rndc-key"; };
+};
 EOF
-  else
-  echo "No rndc.conf file found and no environment variables are set."
-  echo "See README.md for more details."
-  echo "-----------------------------------------------------"
-  echo "Environment Variables Values:"
-  echo "-----------------------------------------------------"
-  echo "BIND_RNDC_ALGORITHM: '${BIND_RNDC_ALGORITHM}'"
-  echo "BIND_RNDC_SECRET: '${BIND_RNDC_SECRET}'"
-  echo
-  echo "Generating a new rndc configuration file..."
-  rndc-confgen -a -r /dev/urandom -t /var/named/chroot
-  BIND_RNDC_ALGORITHM="`cat ${BIND_CHROOT_DIR}/etc/rndc.key | grep algorithm | awk '{print $2}' | cut -f1 -d ';'`"
-  BIND_RNDC_SECRET="`cat ${BIND_CHROOT_DIR}/etc/rndc.key | grep secret | cut -f2 -d '"'`"
-  echo "-----------------------------------------------------"
-  echo "Environment Variables Values:"
-  echo "-----------------------------------------------------"
-  echo "BIND_RNDC_ALGORITHM: '${BIND_RNDC_ALGORITHM}'"
-  echo "BIND_RNDC_SECRET: '${BIND_RNDC_SECRET}'"
-  echo
+    else
+    echo "No rndc.conf file found and no environment variables are set."
+    echo "See README.md for more details."
+    echo "-----------------------------------------------------"
+    echo "Environment Variables Values:"
+    echo "-----------------------------------------------------"
+    echo "BIND_RNDC_ALGORITHM: '${BIND_RNDC_ALGORITHM}'"
+    echo "BIND_RNDC_SECRET: '${BIND_RNDC_SECRET}'"
+    echo "BIND_RNDC_INET: '${BIND_RNDC_INET}'"
+    echo "BIND_RNDC_ALLOW: '${BIND_RNDC_ALLOW}'"
+    echo
+    echo "Generating a new rndc configuration file..."
+    rndc-confgen -a -r /dev/urandom -c rndc.conf -t /var/named/chroot/custom
+    BIND_RNDC_ALGORITHM="`cat ${BIND_CHROOT_DIR}/custom/rndc.conf | grep algorithm | awk '{print $2}' | cut -f1 -d ';'`"
+    BIND_RNDC_SECRET="`cat ${BIND_CHROOT_DIR}/custom/rndc.conf | grep secret | cut -f2 -d '"'`"
+    echo "-----------------------------------------------------"
+    echo "Environment Variables Values:"
+    echo "-----------------------------------------------------"
+    echo "BIND_RNDC_ALGORITHM: '${BIND_RNDC_ALGORITHM}'"
+    echo "BIND_RNDC_SECRET: '${BIND_RNDC_SECRET}'"
+    echo "BIND_RNDC_INET: '${BIND_RNDC_INET}'"
+    echo "BIND_RNDC_ALLOW: '${BIND_RNDC_ALLOW}'"
+    echo
+  fi
 fi
 
 # include custom bind configuration provided one exists
